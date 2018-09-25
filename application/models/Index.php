@@ -1,6 +1,6 @@
 <?php
 
-    use Rakit\Validation\Validator;
+        use Rakit\Validation\Validator;
 
 
 class Index extends Model
@@ -57,19 +57,21 @@ class Index extends Model
         ]);
 
         if ($validation->fails()) {
+
             $errors = $validation->errors();
-            echo "<pre>";
-            print_r($errors->firstOfAll());
-            echo "</pre>";
-            exit;
+                return false;
         } else {
-          
+          return true;
         }
     }
     
     public function showSchedule($postData)
     {
-        $this->checkForm($postData);
+        if(!$this->checkForm($postData))
+        {
+            return '<div class="alert alert-danger" role="alert">
+                                Введите даты!</div>';   
+        }
 
         $html = '';
         $date1 = $postData['date1'];
