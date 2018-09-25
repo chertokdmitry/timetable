@@ -1,5 +1,8 @@
 <?php
 
+    use Rakit\Validation\Validator;
+
+
 class Index extends Model
 {
     const DATA = [
@@ -44,8 +47,30 @@ class Index extends Model
         return $table->html;
     }
     
+    public function checkForm($data) 
+    {
+        $validator = new Validator;
+
+        $validation = $validator->validate($data, [
+            'date1'           => 'required',
+            'date2'   => 'required'
+        ]);
+
+        if ($validation->fails()) {
+            $errors = $validation->errors();
+            echo "<pre>";
+            print_r($errors->firstOfAll());
+            echo "</pre>";
+            exit;
+        } else {
+          
+        }
+    }
+    
     public function showSchedule($postData)
     {
+        $this->checkForm($postData);
+
         $html = '';
         $date1 = $postData['date1'];
         $date2 = $postData['date2'];

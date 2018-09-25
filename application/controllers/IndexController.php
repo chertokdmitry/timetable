@@ -16,9 +16,6 @@ class IndexController extends Controller
         } else {
              $this->html = $this->model->showIndexForm();
         }
-       
-        
-
         return $this->html;
     }
     
