@@ -1,25 +1,43 @@
 <?php
 
-class Schedule
+class Schedule extends Index
 {
     public $data;
     
     public function __construct($data)
     {
         $this->data = $data;
-        $regionQuery= \R::findOne('regions', ' id = ?', [$this->data['regions']]);
+        $regionQuery= \R::findOne('regions', ' id = ?', 
+                [$this->data['regions']]);
         $this->data['interval'] = $regionQuery['distance'];
     }
     
-    private function addNightRoute($interval)
+    public function reverse()
+    {
+        $this->data['date'] = $this->shiftTime($this->data['date'], 
+                $this->data['interval']);
+        $this->data['regions'] = 0;
+        return $this->addSchedule();
+    }
+    
+    public function addSchedule()
     {
         $hours = getHours($this->data['date']);
-        $todayInterval = 24 - $hours;
-        $tommorrowInterval = $interval - $todayInterval;
-        $tomorrow = $this->shiftTime($this->data['date'], $todayInterval);
-        $tommorrowDatetime = $tomorrow;
-        
-        return $this->checkRoute($tommorrowDatetime, $tommorrowInterval, $this->data['regions']);
+        $toDb = [];
+  
+        if ($this->data['interval'] > (24 - $hours)) {
+            $todayInterval = 24 - $hours;
+            $toDb[] = $this->checkRoute($this->data['date'], 
+                    $todayInterval, 
+                    $this->data['regions']);
+            $toDb[] = $this->addNightRoute($this->data['interval']);
+        } else {
+            $toDb[] = $this->checkRoute($this->data['date'], 
+                    $this->data['interval'], 
+                    $this->data['regions']);
+        }
+       
+        return $toDb;
     }
     
     public function addRoute($date, $interval, $region)
@@ -55,34 +73,17 @@ class Schedule
         return ['false'];
     }
     
-    public function reverse()
-    {
-        $this->data['date'] = $this->shiftTime($this->data['date'], $this->data['interval']);
-        $this->data['regions'] = 0;
-        return $this->add();
-    }
-    
-    public function add()
+    private function addNightRoute($interval)
     {
         $hours = getHours($this->data['date']);
-        $toDb = [];
-  
-        if ($this->data['interval'] > (24 - $hours)) {
-            $todayInterval = 24 - $hours;
-            $toDb[] = $this->checkRoute($this->data['date'], $todayInterval, $this->data['regions']);
-            $toDb[] = $this->addNightRoute($this->data['interval']);
-        } else {
-            $toDb[] = $this->checkRoute($this->data['date'], $this->data['interval'], $this->data['regions']);
-        }
-       
-        return $toDb;
-    }
-
-    private function shiftTime($date, $shift)
-    {
-        $shiftTime = new DateTime($date);
-        $shiftTime->add(new DateInterval("PT{$shift}H"));
+        $todayInterval = 24 - $hours;
+        $tommorrowInterval = $interval - $todayInterval;
+        $tomorrow = $this->shiftTime($this->data['date'], 
+                $todayInterval);
+        $tommorrowDatetime = $tomorrow;
         
-        return $shiftTime->format('Y-m-d H:i');
+        return $this->checkRoute($tommorrowDatetime, 
+                $tommorrowInterval, 
+                $this->data['regions']);
     }
 }

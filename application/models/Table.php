@@ -9,9 +9,9 @@ class Table
         $this->html = $this->th($name, $th) . $this->tr($tr) . '</table>';  
     }
         
-    public function th($name, $data)
+    private function th($name, $data)
     {
-        $html = '<h3>' . $name . '</h3><table class="table"><thead><tr>';
+        $html = '<h5>' . $name . '</h5><table class="table"><thead><tr>';
       
         foreach($data as $cell) {
             $html .= '<th scope="col">' . $cell . '</th>';
@@ -20,7 +20,7 @@ class Table
             return $html;
         }
         
-    public function tr($data)
+    private function tr($data)
     {
         $html= '';
         for ($i=0; $i<sizeof($data); $i++) {

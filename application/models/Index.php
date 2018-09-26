@@ -1,8 +1,5 @@
 <?php
 
-        use Rakit\Validation\Validator;
-
-
 class Index extends Model
 {
     const DATA = [
@@ -35,47 +32,18 @@ class Index extends Model
             $i++;
         }
         
-        $table = new Table(
-        
-            self::DATA[App::gi()->uri->table][0],
+        $table = new Table(self::DATA[App::gi()->uri->table][0],
                 self::DATA[App::gi()->uri->table][1],
-        
-            $tr
-        
-        );
+                $tr);
         
         return $table->html;
     }
     
-    public function checkForm($data) 
-    {
-        $validator = new Validator;
-
-        $validation = $validator->validate($data, [
-            'date1'           => 'required',
-            'date2'   => 'required'
-        ]);
-
-        if ($validation->fails()) {
-
-            $errors = $validation->errors();
-                return false;
-        } else {
-          return true;
-        }
-    }
-    
     public function showSchedule($postData)
     {
-        if(!$this->checkForm($postData))
-        {
-            return '<div class="alert alert-danger" role="alert">
-                                Введите даты!</div>';   
-        }
-
         $html = '';
         $date1 = $postData['date1'];
-        $date2 = $postData['date2'];
+        $date2 =  $this->shiftTime($postData['date2'], 24);
         $items = \R::find('schedule', ' date >= ? AND date <= ?', [$date1, $date2]);
         $items = array_merge([], $items);
         
@@ -91,8 +59,11 @@ class Index extends Model
         $courier = \R::findOne('couriers', ' id = ?', [$item['courier_id']]);
         $routeQuery = \R::findOne('regions', ' id = ?', [$item['region_id']]);
         $route = $item['region_id'] == 0 ? ' возврат в Мск' : ' Mск - ' . $routeQuery['name'];
-        $header = $date1 . ' ' . $courier['first'] . ' ' . $courier['last'] . ' ' . $route;
-        $table = new Table($header, $th, $this->makeWorkingHours($item['date'], $item['interval']));
+        $header = $item['date'] . ' ' . $courier['first'] . ' ' . $courier['last'] . ' ' . $route;
+        $table = new Table($header, 
+                $th, 
+                $this->makeWorkingHours($item['date'], 
+                        $item['interval']));
         return $table->html;
     }
     
@@ -138,8 +109,8 @@ class Index extends Model
     {
         $data['date'] = $data['date'] . ' ' . $data['time'];
         $schedule = new Schedule($data);
-        $toDb = array_merge($schedule->add(), $schedule->reverse());
-
+        $toDb = array_merge($schedule->addSchedule(), $schedule->reverse());
+ 
         foreach ($toDb as $route) {
             if ($route[0]=='false') {
                 $html = '<div class="alert alert-danger" role="alert">
@@ -148,6 +119,7 @@ class Index extends Model
                 return $html;
             }
         }
+
             
         foreach ($toDb as $route) {
             $schedule->addRoute($route[1], $route[2], $route[3]);
@@ -157,5 +129,13 @@ class Index extends Model
                                 Данные записаны!
                             </div>';
         return $html;
+    }
+    
+    protected function shiftTime($date, $shift)
+    {
+        $shiftTime = new DateTime($date);
+        $shiftTime->add(new DateInterval("PT{$shift}H"));
+        
+        return $shiftTime->format('Y-m-d H:i');
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+use Rakit\Validation\Validator;
+        
 class IndexController extends Controller
 {
     public $html;
@@ -12,9 +14,14 @@ class IndexController extends Controller
     public function index()
     {
         if (!empty($_POST)) {
-            $this->html .= $this->model->showSchedule($_POST);
+            if ($this->checkForm($_POST, [
+            'date1' => 'required',
+            'date2' => 'required'
+        ])) {
+                $this->html = $this->model->showSchedule($_POST);
+            }    
         } else {
-             $this->html = $this->model->showIndexForm();
+            $this->html = $this->model->showIndexForm();
         }
         return $this->html;
     }
@@ -28,10 +35,37 @@ class IndexController extends Controller
     public function add()
     {
         if (!empty($_POST)) {
-            $this->html = $this->model->add($_POST);
+            if ($this->checkForm($_POST,  [
+            'date' => 'required',
+            'time' => 'required'
+        ])) {
+                $this->html = $this->model->add($_POST);
+            } 
+
         } else {
             $this->html = $this->model->makeForm('add', ' ');
         }
         return $this->html;
+    }
+    
+    private function checkForm($data, $fieldsToCheck)
+    {
+        $validator = new Validator;
+        $validation = $validator->validate($data, $fieldsToCheck);
+
+        if ($validation->fails()) {
+            $errors = $validation->errors();
+             $errs = $errors->firstOfAll();
+                          $this->html = '<div class="alert alert-danger" role="alert">'
+                                  . 'Заполните все поля!<br><br>';
+             foreach($errs as $key=>$err) {
+                $this->html .= $err;
+                $this->html .= '<br>';
+             }
+             $this->html .= '</div>';
+            return false;
+        } else {
+            return true;
+        }
     }
 }
