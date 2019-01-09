@@ -1,6 +1,6 @@
 <?php
 
-class Controller extends Controller
+class Controller
 {
     public $html;
     

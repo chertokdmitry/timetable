@@ -1,6 +1,7 @@
 <?php
 
 use Rakit\Validation\Validator;
+use Jenssegers\Blade\Blade;
         
 class IndexController extends Controller
 {
@@ -23,29 +24,36 @@ class IndexController extends Controller
         } else {
             $this->html = $this->model->showIndexForm();
         }
-        return $this->html;
+
+        $this->render('index', $this->html);
+    }
+
+    public function render($template, $data)
+    {
+        $blade = new Blade( APP.'views',  APP.'cache');
+        echo $blade->make($template, ['html' => $data]);
     }
     
     public function view()
     {
-        $this->html = $this->model->view();
-        return $this->html;
+        $this->render('index', $this->model->view());
     }
     
     public function add()
     {
+
         if (!empty($_POST)) {
             if ($this->checkForm($_POST,  [
-            'date' => 'required',
-            'time' => 'required'
-        ])) {
+                'date' => 'required',
+                'time' => 'required'
+            ])) {
                 $this->html = $this->model->add($_POST);
-            } 
+            }
 
         } else {
             $this->html = $this->model->makeForm('add', ' ');
         }
-        return $this->html;
+        $this->render('index', $this->html);
     }
     
     private function checkForm($data, $fieldsToCheck)

@@ -12,9 +12,6 @@ class Controller extends Singleton{
         
     public function renderPage($content)
     {
-        $html = include ROOT.'application/views/' . App::gi()->uri->controller . '/header.php';
-        $html .= $content;
-        $html .= include ROOT.'application/views/' . App::gi()->uri->controller . '/footer.php';
-        echo $html;
+
     }
 }

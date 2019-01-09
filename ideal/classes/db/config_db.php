@@ -1,7 +1,7 @@
 <?php
 
  return [
-     'dsn'=> 'mysql:host=localhost;dbname=fw;charset=utf8',
-     'user'=> 'root',
-     'pass'=> 'pilotage26',
+     'dsn'=> 'mysql:host=78.108.95.175;dbname=delivery;charset=utf8',
+     'user'=> 'newuser',
+     'pass'=> 'Docker1703',
  ];

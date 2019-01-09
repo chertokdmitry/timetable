@@ -1,5 +1,6 @@
 {
     "require": {
-        "rakit/validation": "*"
+        "rakit/validation": "*",
+        "jenssegers/blade": "^1.0"
     }
 }

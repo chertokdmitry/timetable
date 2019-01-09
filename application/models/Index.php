@@ -4,7 +4,7 @@ class Index extends Model
 {
     const DATA = [
         'couriers' => ['Курьеры', ['id', 'first', 'last']],
-        'regions' => ['Города', ['id', 'name', 'distance']],
+        'regions' => ['Бизнес-центры', ['id', 'name', 'distance']],
         'schedule' => ['Расписание', ['date', 'courier_id', 'region_id', 'interval']]];
 
     const FORM = ['schedule' =>
@@ -89,6 +89,7 @@ class Index extends Model
         $tr = new Form($header, $formAction, self::FORM['index']['fields'], 0, false);
         $html = $tr->html;
         $html .= '</div><br><br>';
+
         return $html;
     }
     
@@ -102,6 +103,7 @@ class Index extends Model
                 self::FORM[App::gi()->uri->table]['fields'],
             $id
         );
+
         return $tr->html;
     }
     
@@ -110,7 +112,7 @@ class Index extends Model
         $data['date'] = $data['date'] . ' ' . $data['time'];
         $schedule = new Schedule($data);
         $toDb = array_merge($schedule->addSchedule(), $schedule->reverse());
- 
+
         foreach ($toDb as $route) {
             if ($route[0]=='false') {
                 $html = '<div class="alert alert-danger" role="alert">
@@ -120,11 +122,11 @@ class Index extends Model
             }
         }
 
-            
+
         foreach ($toDb as $route) {
             $schedule->addRoute($route[1], $route[2], $route[3]);
         }
-            
+
         $html = '<div class="alert alert-success" role="alert">
                                 Данные записаны!
                             </div>';

@@ -86,4 +86,6 @@ class Schedule extends Index
                 $tommorrowInterval, 
                 $this->data['regions']);
     }
+
+
 }
